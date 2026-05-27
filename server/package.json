@@ -7,7 +7,7 @@
     "dev": "node ../scripts/dev-server.mjs",
     "build": "tsc -p tsconfig.json",
     "typecheck": "tsc -p tsconfig.json --noEmit",
-    "verify:dao": "tsx db/verifyDao.ts"
+    "verify:dao": "tsx db/scripts/verifyDao.ts"
   },
   "dependencies": {
     "cors": "^2.8.5",

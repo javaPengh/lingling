@@ -1,5 +1,5 @@
 import type { DatabaseSync } from "node:sqlite";
-import { getDatabase } from "./connection.js";
+import { getDatabase } from "../connection.js";
 
 export type Db = DatabaseSync;
 

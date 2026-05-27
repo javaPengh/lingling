@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { createDatabaseConnection } from "./connection.js";
+import { createDatabaseConnection } from "../connection.js";
 import {
   getKnowledgePointById,
   getLearningEventById,
@@ -19,7 +19,7 @@ import {
   insertStudent,
   insertStudentKnowledge,
   insertStudentProfile
-} from "./index.js";
+} from "../index.js";
 
 const db = createDatabaseConnection(":memory:");
 const now = "2026-05-27T00:00:00Z";

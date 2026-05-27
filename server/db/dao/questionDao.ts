@@ -1,4 +1,4 @@
-import type { VisualAidType } from "../../shared/api.js";
+import type { VisualAidType } from "../../../shared/api.js";
 import {
   dbOrDefault,
   jsonText,
@@ -6,7 +6,7 @@ import {
   parseJson,
   type Db
 } from "./sqliteHelpers.js";
-import type { Difficulty, JsonRecord, Question, QuestionKnowledge, TypicalError } from "./types.js";
+import type { Difficulty, JsonRecord, Question, QuestionKnowledge, TypicalError } from "../types/entities.js";
 
 export function insertQuestion(question: Question, db?: Db): void {
   dbOrDefault(db)

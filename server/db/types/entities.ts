@@ -3,7 +3,7 @@ import type {
   LearningState,
   TeachingStrategy,
   VisualAidType
-} from "../../shared/api.js";
+} from "../../../shared/api.js";
 
 export type Difficulty = "easy" | "medium" | "hard";
 export type ReviewStatus = "pending" | "done" | "skipped";

@@ -3,7 +3,7 @@ import type {
   LearningState,
   TeachingStrategy,
   VisualAidType
-} from "../../shared/api.js";
+} from "../../../shared/api.js";
 import {
   boolToInt,
   dbOrDefault,
@@ -12,7 +12,7 @@ import {
   parseJson,
   type Db
 } from "./sqliteHelpers.js";
-import type { LearningEvent, LearningSession } from "./types.js";
+import type { LearningEvent, LearningSession } from "../types/entities.js";
 
 export function insertSession(session: LearningSession, db?: Db): void {
   dbOrDefault(db)

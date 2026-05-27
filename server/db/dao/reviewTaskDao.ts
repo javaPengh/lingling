@@ -1,5 +1,5 @@
 import { dbOrDefault, type Db } from "./sqliteHelpers.js";
-import type { ReviewStatus, ReviewTask } from "./types.js";
+import type { ReviewStatus, ReviewTask } from "../types/entities.js";
 
 export function insertReviewTask(task: ReviewTask, db?: Db): void {
   dbOrDefault(db)

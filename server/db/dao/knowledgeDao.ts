@@ -1,5 +1,5 @@
 import { dbOrDefault, type Db } from "./sqliteHelpers.js";
-import type { KnowledgePoint } from "./types.js";
+import type { KnowledgePoint } from "../types/entities.js";
 
 export function insertKnowledgePoint(point: KnowledgePoint, db?: Db): void {
   dbOrDefault(db)

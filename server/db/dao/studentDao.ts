@@ -1,6 +1,6 @@
-import type { LearningState, StudentSummary, TeachingStrategy } from "../../shared/api.js";
+import type { LearningState, StudentSummary, TeachingStrategy } from "../../../shared/api.js";
 import { dbOrDefault, jsonText, parseJson, type Db } from "./sqliteHelpers.js";
-import type { Student, StudentKnowledge, StudentProfile } from "./types.js";
+import type { Student, StudentKnowledge, StudentProfile } from "../types/entities.js";
 
 export function insertStudent(student: Student, db?: Db): void {
   dbOrDefault(db)
