@@ -1,6 +1,6 @@
 import { Router } from "express";
 import type { HealthResponse, StudentsListResponse } from "../../shared/api.js";
-import { listStudents } from "../db/dao.js";
+import { listStudents } from "../db/index.js";
 
 export const apiRouter = Router();
 
@@ -14,10 +14,10 @@ apiRouter.get("/health", (_req, res) => {
   res.json(body);
 });
 
-apiRouter.get("/students", async (_req, res, next) => {
+apiRouter.get("/students", (_req, res, next) => {
   try {
     const body: StudentsListResponse = {
-      students: await listStudents()
+      students: listStudents()
     };
 
     res.json(body);
