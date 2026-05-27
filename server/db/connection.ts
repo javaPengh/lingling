@@ -10,11 +10,17 @@ const rootDir = resolve(serverDir, "..");
 const schemaPath = resolve(serverDir, "db", "schema.sql");
 const databasePath = resolve(rootDir, "lingling.db");
 
+export function createDatabaseConnection(path = databasePath): DatabaseSync {
+  const connection = new DatabaseSync(path);
+  connection.exec("PRAGMA foreign_keys = ON;");
+  connection.exec(readFileSync(schemaPath, "utf8"));
+
+  return connection;
+}
+
 export function getDatabase(): DatabaseSync {
   if (!database) {
-    database = new DatabaseSync(databasePath);
-    database.exec("PRAGMA foreign_keys = ON;");
-    database.exec(readFileSync(schemaPath, "utf8"));
+    database = createDatabaseConnection();
   }
 
   return database;
