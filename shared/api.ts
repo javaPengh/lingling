@@ -64,3 +64,43 @@ export interface LearningTurnResponse {
   visualAidUsed: VisualAidType;
   tutorResponse: string;
 }
+
+export interface RuleSignal {
+  code: string;
+  description: string;
+  severity?: "low" | "medium" | "high";
+}
+
+export interface EmotionRecognitionRequest {
+  studentInput: string;
+  isCorrect?: boolean | null;
+  knowledgePointIds?: string[];
+  ruleSignals?: RuleSignal[];
+  historySummary?: string;
+  recentTurns?: string[];
+}
+
+export interface EmotionRecognitionResponse {
+  state: LearningState;
+  confidence: number;
+  evidence: string;
+}
+
+export interface GenerateResponseRequest {
+  state: LearningState;
+  strategy: TeachingStrategy[];
+  careTriggered: boolean;
+  visualAidUsed: VisualAidType;
+  question?: {
+    stem: string;
+    solution?: string;
+  };
+  studentInput: string;
+  isCorrect?: boolean | null;
+  errorCause?: ErrorCause | null;
+  errorDetail?: string | null;
+}
+
+export interface GenerateResponseResponse {
+  tutor_response: string;
+}

@@ -1,8 +1,11 @@
 import { Router } from "express";
 import type { HealthResponse, StudentsListResponse } from "../../shared/api.js";
 import { listStudents } from "../db/index.js";
+import { llmRouter } from "./llmRoutes.js";
 
 export const apiRouter = Router();
+
+apiRouter.use("/llm", llmRouter);
 
 apiRouter.get("/health", (_req, res) => {
   const body: HealthResponse = {
