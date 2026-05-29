@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { createLlmClient } from "../modules/llmClient.js";
+import { createLlmClient } from "../modules/llm/index.js";
 
 const llm = createLlmClient("mock");
 

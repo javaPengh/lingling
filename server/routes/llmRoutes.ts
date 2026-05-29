@@ -6,7 +6,7 @@ import type {
   TeachingStrategy,
   VisualAidType
 } from "../../shared/api.js";
-import { generateResponse, recognizeEmotion } from "../modules/llmClient.js";
+import { generateResponse, recognizeEmotion } from "../modules/llm/index.js";
 
 export const llmRouter = Router();
 
