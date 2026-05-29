@@ -35,6 +35,20 @@ npm run dev
 
 前端默认运行在 `http://localhost:5173`，后端默认运行在 `http://localhost:3001`。
 
+## 数据库
+
+首次演示前写入种子数据：
+
+```bash
+npm run seed
+```
+
+验证种子数据：
+
+```bash
+npm run verify:seed
+```
+
 ## 环境变量
 
 复制 `.env.example` 为 `.env` 后按需填写。V0.1 默认使用 `LLM_MODE=mock`，真实模型密钥只放在后端环境变量中。

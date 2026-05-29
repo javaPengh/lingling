@@ -13,7 +13,9 @@
     "dev:web": "npm run dev --workspace web",
     "build": "npm run build --workspace server && npm run build --workspace web",
     "typecheck": "npm run typecheck --workspace server && npm run typecheck --workspace web",
+    "seed": "npm run seed --workspace server",
     "verify:dao": "npm run verify:dao --workspace server",
+    "verify:seed": "npm run verify:seed --workspace server",
     "verify:llm": "npm run verify:llm --workspace server",
     "verify:llm:http": "npm run verify:llm:http --workspace server"
   },

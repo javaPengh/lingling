@@ -7,7 +7,9 @@
     "dev": "node ../scripts/dev-server.mjs",
     "build": "tsc -p tsconfig.json",
     "typecheck": "tsc -p tsconfig.json --noEmit",
+    "seed": "tsx db/scripts/seed.ts",
     "verify:dao": "tsx db/scripts/verifyDao.ts",
+    "verify:seed": "tsx db/scripts/verifySeed.ts",
     "verify:llm": "tsx scripts/verifyLlm.ts",
     "verify:llm:http": "tsx scripts/verifyLlmRoutes.ts"
   },
