@@ -28,3 +28,4 @@ When adding files, place them by responsibility rather than convenience.
 - New files need a file-level docstring or comment explaining their responsibility.
 - New public interfaces and functions need docstrings explaining what they do.
 - New entity classes need class docstrings, and every entity field needs a field description.
+- New enum classes need class docstrings, and every enum member needs a short comment.
