@@ -1,9 +1,16 @@
+"""复习任务 DAO。
+
+负责 `review_task` 表的写入和按学生/会话查询。
+"""
+
 import sqlite3
 
 from server.models.entities import ReviewTask
 
 
 def upsert_review_task(connection: sqlite3.Connection, task: ReviewTask) -> None:
+    """插入或更新一条复习任务。"""
+
     connection.execute(
         """
         INSERT INTO review_task (
@@ -34,6 +41,8 @@ def upsert_review_task(connection: sqlite3.Connection, task: ReviewTask) -> None
 
 
 def list_review_tasks_by_student(connection: sqlite3.Connection, student_id: str) -> list[ReviewTask]:
+    """查询某个学生的复习任务。"""
+
     rows = connection.execute(
         """
         SELECT * FROM review_task
@@ -46,6 +55,8 @@ def list_review_tasks_by_student(connection: sqlite3.Connection, student_id: str
 
 
 def list_review_tasks_by_session(connection: sqlite3.Connection, session_id: str) -> list[ReviewTask]:
+    """查询某个会话产生的复习任务。"""
+
     rows = connection.execute(
         """
         SELECT rt.*

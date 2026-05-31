@@ -1,3 +1,8 @@
+"""报告预览业务服务。
+
+聚合学生画像、薄弱点、近期事件和复习任务，生成教师/家长视角摘要。
+"""
+
 import sqlite3
 
 from server.dao import review_task_dao, session_dao, student_dao
@@ -5,6 +10,8 @@ from server.models.schemas import ReportResponse
 
 
 def get_student_report(connection: sqlite3.Connection, student_id: str) -> ReportResponse:
+    """按学生 ID 组装报告预览数据。"""
+
     student = student_dao.get_student(connection, student_id)
     if student is None:
         raise ValueError(f"Student not found: {student_id}")

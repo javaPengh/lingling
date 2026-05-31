@@ -1,3 +1,8 @@
+"""复习任务规划服务。
+
+根据本次会话中的薄弱点、连续受阻和挫败事件生成主动复习任务。
+"""
+
 from datetime import datetime, timedelta, timezone
 import sqlite3
 
@@ -13,6 +18,8 @@ def create_review_tasks(
     events: list[LearningEvent],
     created_at: str,
 ) -> list[ReviewTask]:
+    """为会话中暴露的薄弱知识点创建复习任务。"""
+
     candidates = _candidate_knowledge_points(connection, student_id, events)
     if not candidates:
         return []

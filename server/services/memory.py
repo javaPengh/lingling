@@ -1,3 +1,8 @@
+"""忆感/长期记忆服务。
+
+负责会话开始时读取学生画像和薄弱点，并在会话结束时写回长期记忆。
+"""
+
 from dataclasses import dataclass
 from collections import Counter
 import sqlite3
@@ -8,6 +13,8 @@ from server.models.entities import LearningEvent, LearningSession, StudentKnowle
 
 @dataclass(frozen=True)
 class MemorySnapshot:
+    """编排器可用的一次长期记忆读取快照。"""
+
     profile: StudentProfile | None
     weak_knowledge: list[StudentKnowledge]
     recent_sessions: list[LearningSession]
@@ -16,6 +23,8 @@ class MemorySnapshot:
 
 
 def read_memory(connection: sqlite3.Connection, student_id: str) -> MemorySnapshot:
+    """读取学生画像、薄弱知识点、近期会话和近期事件。"""
+
     profile = student_dao.get_student_profile(connection, student_id)
     weak_knowledge = student_dao.list_weak_student_knowledge(connection, student_id)
     recent_sessions = session_dao.list_recent_sessions_by_student(connection, student_id, limit=2)
@@ -37,6 +46,8 @@ def read_memory(connection: sqlite3.Connection, student_id: str) -> MemorySnapsh
 
 
 def build_opening_message(snapshot: MemorySnapshot, student_name: str) -> str:
+    """根据学生画像生成会话开场语。"""
+
     if snapshot.profile and "焦虑" in (snapshot.profile.learning_summary or ""):
         return f"{student_name}来啦。我们今天先稳稳做一道题，不追速度，只抓住当前这一步。"
     if snapshot.profile and "平稳" in (snapshot.profile.learning_summary or ""):
@@ -45,6 +56,8 @@ def build_opening_message(snapshot: MemorySnapshot, student_name: str) -> str:
 
 
 def summarize_session(events: list[LearningEvent]) -> tuple[str, str | None]:
+    """根据学习事件生成会话摘要和主导状态。"""
+
     if not events:
         return "本次会话暂无学习事件。", None
     state_counts = Counter(event.state for event in events)
@@ -66,6 +79,8 @@ def write_back_memory(
     events: list[LearningEvent],
     ended_at: str,
 ) -> StudentProfile | None:
+    """会话结束后更新掌握度、画像、近期状态和有效策略。"""
+
     profile = student_dao.get_student_profile(connection, student_id)
     if profile is None:
         return None

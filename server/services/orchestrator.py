@@ -1,3 +1,8 @@
+"""教学编排器服务。
+
+串联记忆读取、深图分析、状态识别、策略决策、LLM 回复、事件写入和会话写回。
+"""
+
 from datetime import datetime, timezone
 import sqlite3
 from uuid import uuid4
@@ -22,6 +27,8 @@ from server.services.state_recognizer import StateRecognitionResult, recognize_s
 
 
 def start_session(connection: sqlite3.Connection, student_id: str) -> StartSessionResponse:
+    """创建学习会话，并返回开场语、记忆摘要和推荐题目。"""
+
     student = student_dao.get_student(connection, student_id)
     if student is None:
         raise ValueError(f"Student not found: {student_id}")
@@ -46,6 +53,8 @@ def start_session(connection: sqlite3.Connection, student_id: str) -> StartSessi
 
 
 def handle_learning_turn(connection: sqlite3.Connection, request: LearningTurnRequest) -> LearningTurnResponse:
+    """处理一轮学习输入，写入结构化学习事件并返回教学回应。"""
+
     session = session_dao.get_session(connection, request.session_id)
     if session is None:
         raise ValueError(f"Session not found: {request.session_id}")
@@ -121,6 +130,8 @@ def handle_learning_turn(connection: sqlite3.Connection, request: LearningTurnRe
 
 
 def finish_session(connection: sqlite3.Connection, session_id: str) -> FinishSessionResponse:
+    """结束学习会话，完成长期记忆写回和复习任务生成。"""
+
     session = session_dao.get_session(connection, session_id)
     if session is None:
         raise ValueError(f"Session not found: {session_id}")
@@ -143,6 +154,8 @@ def finish_session(connection: sqlite3.Connection, session_id: str) -> FinishSes
 
 
 def now_iso() -> str:
+    """返回 UTC ISO 8601 时间字符串。"""
+
     return datetime.now(timezone.utc).replace(microsecond=0).isoformat().replace("+00:00", "Z")
 
 

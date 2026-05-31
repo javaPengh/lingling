@@ -1,3 +1,9 @@
+"""种子数据脚本。
+
+把《种子数据与演示脚本》中的三名学生、知识点、题库和初始掌握度写入 SQLite。
+脚本使用 upsert，重复执行不会产生重复数据。
+"""
+
 from __future__ import annotations
 
 from sqlite3 import Connection
@@ -64,6 +70,8 @@ SEED_KNOWLEDGE_POINTS = [
 def make_student_knowledge(
     student_id: str, knowledge_point_id: str, mastery: int, attempts: int, correct_count: int
 ) -> dict[str, object]:
+    """生成学生知识点掌握度种子记录。"""
+
     return {
         "id": f"sk_{student_id[-3:]}_{knowledge_point_id[-3:]}",
         "student_id": student_id,
@@ -212,6 +220,8 @@ SEED_QUESTION_KNOWLEDGE = [
 
 
 def seed_database(connection: Connection | None = None) -> dict[str, int]:
+    """向数据库写入完整种子数据，并返回各类数据条数。"""
+
     owns_connection = connection is None
     db = connection or create_connection()
     for student in SEED_STUDENTS:
@@ -241,6 +251,8 @@ def seed_database(connection: Connection | None = None) -> dict[str, int]:
 
 
 def main() -> None:
+    """命令行入口：写入默认数据库的种子数据。"""
+
     summary = seed_database()
     print(f"Seeded database: {summary}")
 

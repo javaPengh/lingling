@@ -8,16 +8,16 @@
   ],
   "scripts": {
     "dev": "concurrently \"npm:dev:server\" \"npm:dev:web\"",
-    "dev:server": "python -m uvicorn server.main:app --host 127.0.0.1 --port 3001 --reload",
+    "dev:server": "\"D:\\ai_study_app\\anaconda3\\python.exe\" -m uvicorn server.main:app --host 127.0.0.1 --port 3001 --reload",
     "dev:web": "npm run dev --workspace web",
-    "build": "python -m compileall server && npm run build --workspace web",
-    "typecheck": "python -m compileall server && npm run typecheck --workspace web",
-    "seed": "python -m server.scripts.seed",
-    "verify": "python -m server.scripts.verify",
-    "verify:dao": "python -m server.scripts.verify",
-    "verify:seed": "python -m server.scripts.verify",
-    "verify:llm": "python -m server.scripts.verify",
-    "verify:llm:http": "python -m server.scripts.verify"
+    "build": "\"D:\\ai_study_app\\anaconda3\\python.exe\" -m compileall server && npm run build --workspace web",
+    "typecheck": "\"D:\\ai_study_app\\anaconda3\\python.exe\" -m compileall server && npm run typecheck --workspace web",
+    "seed": "\"D:\\ai_study_app\\anaconda3\\python.exe\" -m server.scripts.seed",
+    "verify": "\"D:\\ai_study_app\\anaconda3\\python.exe\" -m server.scripts.verify",
+    "verify:dao": "\"D:\\ai_study_app\\anaconda3\\python.exe\" -m server.scripts.verify",
+    "verify:seed": "\"D:\\ai_study_app\\anaconda3\\python.exe\" -m server.scripts.verify",
+    "verify:llm": "\"D:\\ai_study_app\\anaconda3\\python.exe\" -m server.scripts.verify",
+    "verify:llm:http": "\"D:\\ai_study_app\\anaconda3\\python.exe\" -m server.scripts.verify"
   },
   "devDependencies": {
     "concurrently": "^9.1.2",

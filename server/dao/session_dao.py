@@ -1,3 +1,8 @@
+"""会话与学习事件 DAO。
+
+负责 `session` 和 `learning_event` 两张核心过程表的读写。
+"""
+
 import sqlite3
 
 from server.dao.helpers import bool_to_int, int_to_bool, json_text, parse_json
@@ -5,6 +10,8 @@ from server.models.entities import LearningEvent, LearningSession
 
 
 def insert_session(connection: sqlite3.Connection, session: LearningSession) -> None:
+    """创建一条学习会话记录。"""
+
     connection.execute(
         """
         INSERT INTO session (id, student_id, started_at, ended_at, dominant_state, summary, event_count)
@@ -23,6 +30,8 @@ def insert_session(connection: sqlite3.Connection, session: LearningSession) -> 
 
 
 def get_session(connection: sqlite3.Connection, session_id: str) -> LearningSession | None:
+    """按会话 ID 查询学习会话。"""
+
     row = connection.execute("SELECT * FROM session WHERE id = ?", (session_id,)).fetchone()
     return LearningSession.model_validate(dict(row)) if row else None
 
@@ -35,6 +44,8 @@ def update_session_finish(
     summary: str,
     event_count: int,
 ) -> None:
+    """写入会话结束时间、主导状态、摘要和事件数量。"""
+
     connection.execute(
         """
         UPDATE session
@@ -46,6 +57,8 @@ def update_session_finish(
 
 
 def next_event_sequence(connection: sqlite3.Connection, session_id: str) -> int:
+    """计算某个会话内下一条学习事件序号。"""
+
     row = connection.execute(
         "SELECT COALESCE(MAX(sequence), 0) + 1 AS sequence FROM learning_event WHERE session_id = ?",
         (session_id,),
@@ -54,6 +67,8 @@ def next_event_sequence(connection: sqlite3.Connection, session_id: str) -> int:
 
 
 def insert_learning_event(connection: sqlite3.Connection, event: LearningEvent) -> None:
+    """写入一轮结构化学习事件。"""
+
     connection.execute(
         """
         INSERT INTO learning_event (
@@ -97,6 +112,8 @@ def _event_from_row(row: sqlite3.Row) -> LearningEvent:
 
 
 def list_events_by_session(connection: sqlite3.Connection, session_id: str) -> list[LearningEvent]:
+    """按会话顺序列出学习事件。"""
+
     rows = connection.execute(
         "SELECT * FROM learning_event WHERE session_id = ? ORDER BY sequence ASC",
         (session_id,),
@@ -107,6 +124,8 @@ def list_events_by_session(connection: sqlite3.Connection, session_id: str) -> l
 def list_recent_events_by_student(
     connection: sqlite3.Connection, student_id: str, limit: int = 10
 ) -> list[LearningEvent]:
+    """查询某个学生最近的学习事件。"""
+
     rows = connection.execute(
         """
         SELECT * FROM learning_event
@@ -122,6 +141,8 @@ def list_recent_events_by_student(
 def list_recent_sessions_by_student(
     connection: sqlite3.Connection, student_id: str, limit: int = 2
 ) -> list[LearningSession]:
+    """查询某个学生最近已结束的学习会话。"""
+
     rows = connection.execute(
         """
         SELECT * FROM session

@@ -1,3 +1,8 @@
+"""学习状态识别服务。
+
+规则层负责提取客观信号和安全网，LLM 负责语义裁决；LLM 不可用时使用规则兜底。
+"""
+
 from dataclasses import dataclass
 import sqlite3
 
@@ -11,6 +16,8 @@ from server.services.memory import MemorySnapshot
 
 @dataclass(frozen=True)
 class StateRecognitionResult:
+    """状态识别结果，包含最终状态、证据、规则信号和受阻次数。"""
+
     state: LearningState
     evidence: str
     rule_signals: list[RuleSignal]
@@ -25,6 +32,8 @@ def recognize_state(
     prior_events: list[LearningEvent],
     memory: MemorySnapshot,
 ) -> StateRecognitionResult:
+    """识别本轮学习状态，并应用规则安全网。"""
+
     del connection
     rule_signals = collect_rule_signals(student_input, is_correct, knowledge_point_ids, prior_events, memory)
     obstruction_count = _obstruction_count(knowledge_point_ids, prior_events, is_correct, student_input)
@@ -60,6 +69,8 @@ def collect_rule_signals(
     prior_events: list[LearningEvent],
     memory: MemorySnapshot,
 ) -> list[RuleSignal]:
+    """从学生文本、作答结果、历史事件和长期记忆中提取规则信号。"""
+
     text = student_input.lower()
     signals: list[RuleSignal] = []
     if any(word in text for word in ["算了", "放弃", "不会", "搞不定"]):

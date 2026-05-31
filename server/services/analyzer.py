@@ -1,3 +1,8 @@
+"""深图/判题服务。
+
+V0.1 用规则实现题目匹配、知识点命中和错因归因，后续可替换为更强的分析能力。
+"""
+
 from dataclasses import dataclass
 import re
 import sqlite3
@@ -8,6 +13,8 @@ from server.models.entities import Question
 
 @dataclass(frozen=True)
 class AnalysisResult:
+    """一轮输入的题目分析结果。"""
+
     question: Question | None
     knowledge_point_ids: list[str]
     is_correct: bool | None
@@ -21,6 +28,8 @@ def analyze_turn(
     student_input: str,
     student_answer: str | None,
 ) -> AnalysisResult:
+    """分析学生本轮输入，返回是否答对、命中知识点和错因。"""
+
     if not question_id:
         return AnalysisResult(None, [], None, None, None)
 

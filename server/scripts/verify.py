@@ -1,3 +1,8 @@
+"""后端自测脚本。
+
+验证建表、种子数据、DAO、学习闭环、记忆写回、观察面板和报告聚合。
+"""
+
 from __future__ import annotations
 
 import sqlite3
@@ -13,6 +18,8 @@ from server.services.reporting import get_student_report
 
 
 def main() -> None:
+    """运行完整后端验收流程。"""
+
     db = create_connection(":memory:")
     seed_database(db)
     _verify_counts(db)

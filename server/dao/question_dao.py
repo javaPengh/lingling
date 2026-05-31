@@ -1,3 +1,8 @@
+"""题库与题目-知识点关联 DAO。
+
+负责 `question` 和 `question_knowledge` 两张表的读写与 JSON 字段转换。
+"""
+
 import sqlite3
 
 from server.dao.helpers import json_text, parse_json
@@ -5,6 +10,8 @@ from server.models.entities import Question, QuestionKnowledge
 
 
 def upsert_question(connection: sqlite3.Connection, question: Question) -> None:
+    """插入或更新一道预置题目。"""
+
     connection.execute(
         """
         INSERT INTO question (
@@ -42,16 +49,22 @@ def _question_from_row(row: sqlite3.Row) -> Question:
 
 
 def get_question(connection: sqlite3.Connection, question_id: str) -> Question | None:
+    """按题目 ID 查询题目。"""
+
     row = connection.execute("SELECT * FROM question WHERE id = ?", (question_id,)).fetchone()
     return _question_from_row(row) if row else None
 
 
 def list_questions(connection: sqlite3.Connection) -> list[Question]:
+    """列出全部题目。"""
+
     rows = connection.execute("SELECT * FROM question ORDER BY id ASC").fetchall()
     return [_question_from_row(row) for row in rows]
 
 
 def upsert_question_knowledge(connection: sqlite3.Connection, record: QuestionKnowledge) -> None:
+    """插入或更新题目与知识点的关联。"""
+
     connection.execute(
         """
         INSERT INTO question_knowledge (id, question_id, knowledge_point_id)
@@ -65,6 +78,8 @@ def upsert_question_knowledge(connection: sqlite3.Connection, record: QuestionKn
 
 
 def list_question_knowledge_ids(connection: sqlite3.Connection, question_id: str) -> list[str]:
+    """查询一道题关联的知识点 ID 列表。"""
+
     rows = connection.execute(
         """
         SELECT knowledge_point_id FROM question_knowledge

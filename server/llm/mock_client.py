@@ -1,3 +1,8 @@
+"""离线 mock LLM 客户端。
+
+用于本地开发、断网演示和 live 模型异常时的兜底。
+"""
+
 from server.core.enums import LearningState, TeachingStrategy, VisualAidType
 from server.llm.base import LlmClient
 from server.models.schemas import (
@@ -9,7 +14,11 @@ from server.models.schemas import (
 
 
 class MockLlmClient(LlmClient):
+    """基于规则信号生成稳定可复现结果的 mock 实现。"""
+
     def recognize_emotion(self, payload: EmotionRecognitionInput) -> EmotionRecognitionResult:
+        """根据规则信号和学生文本模拟情绪识别。"""
+
         codes = {signal.code for signal in payload.rule_signals}
         text = payload.student_input
         state = LearningState.STABLE
@@ -49,6 +58,8 @@ class MockLlmClient(LlmClient):
         return EmotionRecognitionResult(state=state, confidence=confidence, evidence=evidence)
 
     def generate_response(self, payload: GenerateResponseInput) -> GenerateResponseResult:
+        """根据状态和策略生成离线教学回应。"""
+
         strategies = set(payload.strategy)
         question = payload.question or {}
         solution = question.get("solution") or ""

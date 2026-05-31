@@ -1,3 +1,9 @@
+"""API 与 LLM 调用的数据契约。
+
+本文件描述 HTTP 请求/响应和 LLM 适配层输入输出，不直接等同数据库表。
+字段在 Python 内部使用 snake_case，对外通过 `ApiModel` 自动暴露为 camelCase。
+"""
+
 from typing import Any
 
 from pydantic import BaseModel, ConfigDict, Field
@@ -7,11 +13,15 @@ from server.models.entities import LearningEvent, ReviewTask, StudentKnowledge, 
 
 
 def to_camel(value: str) -> str:
+    """将 snake_case 字段名转换为前端使用的 camelCase。"""
+
     head, *tail = value.split("_")
     return head + "".join(part.capitalize() for part in tail)
 
 
 class ApiModel(BaseModel):
+    """API DTO 基类，统一 camelCase 别名和枚举序列化。"""
+
     model_config = ConfigDict(
         alias_generator=to_camel,
         populate_by_name=True,
@@ -20,124 +30,156 @@ class ApiModel(BaseModel):
 
 
 class HealthResponse(ApiModel):
-    ok: bool = True
-    service: str = "lingling-server"
-    mode: str
+    """健康检查响应，供前端确认后端服务与 LLM 模式。"""
+
+    ok: bool = Field(default=True, description="服务是否可响应，健康检查固定为 true。")
+    service: str = Field(default="lingling-server", description="服务名称，供前端确认命中的后端。")
+    mode: str = Field(..., description="当前 LLM 模式，取值为 mock 或 live。")
 
 
 class StudentSummary(ApiModel):
-    id: str
-    name: str
-    grade: str
-    profile_label: str | None = None
+    """学生选择页使用的轻量学生卡片数据。"""
+
+    id: str = Field(..., description="学生唯一 ID。")
+    name: str = Field(..., description="学生昵称或姓名。")
+    grade: str = Field(..., description="学生年级。")
+    profile_label: str | None = Field(default=None, description="学生卡片上展示的短画像标签。")
 
 
 class StudentsListResponse(ApiModel):
-    students: list[StudentSummary]
+    """学生列表接口响应。"""
+
+    students: list[StudentSummary] = Field(..., description="可选择的预置学生列表。")
 
 
 class StartSessionRequest(ApiModel):
-    student_id: str
+    """开始学习会话的请求体。"""
+
+    student_id: str = Field(..., description="要开始学习的学生 ID。")
 
 
 class StartSessionResponse(ApiModel):
-    session_id: str
-    student_id: str
-    started_at: str
-    opening_message: str
-    memory_summary: str
-    recommended_question_id: str | None = None
+    """开始学习会话后的响应，包含会话信息和开场上下文。"""
+
+    session_id: str = Field(..., description="新创建的学习会话 ID。")
+    student_id: str = Field(..., description="本次会话所属学生 ID。")
+    started_at: str = Field(..., description="会话开始时间，ISO 8601 字符串。")
+    opening_message: str = Field(..., description="根据学生画像生成的灵灵开场语。")
+    memory_summary: str = Field(..., description="会话开始时读取到的长期记忆摘要。")
+    recommended_question_id: str | None = Field(default=None, description="推荐进入学习的题目 ID。")
 
 
 class LearningTurnRequest(ApiModel):
-    session_id: str
-    student_id: str
-    question_id: str | None = None
-    student_input: str
-    student_answer: str | None = None
+    """学生提交一轮输入给教学编排器的请求体。"""
+
+    session_id: str = Field(..., description="当前学习会话 ID。")
+    student_id: str = Field(..., description="当前学生 ID。")
+    question_id: str | None = Field(default=None, description="本轮关联题目 ID；自由提问时为空。")
+    student_input: str = Field(..., description="学生本轮输入原文。")
+    student_answer: str | None = Field(default=None, description="学生本轮答案；非作答轮可为空。")
 
 
 class LearningTurnResponse(ApiModel):
-    event_id: str
-    state: LearningState
-    state_evidence: str
-    strategy: list[TeachingStrategy]
-    strategy_reason: str
-    care_triggered: bool
-    visual_aid_used: VisualAidType
-    tutor_response: str
-    is_correct: bool | None = None
-    error_cause: str | None = None
-    error_detail: str | None = None
-    knowledge_point_ids: list[str] = Field(default_factory=list)
+    """教学编排器处理一轮输入后的响应。"""
+
+    event_id: str = Field(..., description="本轮写入数据库后的学习事件 ID。")
+    state: LearningState = Field(..., description="本轮识别出的学习状态。")
+    state_evidence: str = Field(..., description="识别该学习状态的证据。")
+    strategy: list[TeachingStrategy] = Field(..., description="本轮采用的教学策略组合。")
+    strategy_reason: str = Field(..., description="选择这些策略的可解释原因。")
+    care_triggered: bool = Field(..., description="本轮是否触发主动关怀。")
+    visual_aid_used: VisualAidType = Field(..., description="本轮实际使用的视觉辅助类型。")
+    tutor_response: str = Field(..., description="灵灵最终说给学生的话。")
+    is_correct: bool | None = Field(default=None, description="本轮是否答对；非作答轮为空。")
+    error_cause: str | None = Field(default=None, description="本轮错因分类；答对或未归因时为空。")
+    error_detail: str | None = Field(default=None, description="本轮错因自然语言说明。")
+    knowledge_point_ids: list[str] = Field(default_factory=list, description="本轮命中的知识点 ID 列表。")
 
 
 class FinishSessionResponse(ApiModel):
-    session_id: str
-    student_id: str
-    summary: str
-    dominant_state: LearningState | None
-    event_count: int
-    review_tasks: list[ReviewTask]
-    updated_profile: StudentProfile | None
+    """结束会话后的写回结果与复盘响应。"""
+
+    session_id: str = Field(..., description="已结束的学习会话 ID。")
+    student_id: str = Field(..., description="本次会话所属学生 ID。")
+    summary: str = Field(..., description="本次学习复盘摘要。")
+    dominant_state: LearningState | None = Field(default=None, description="本次会话主导学习状态。")
+    event_count: int = Field(..., description="本次会话累计学习事件数。")
+    review_tasks: list[ReviewTask] = Field(..., description="本次会话生成的复习任务列表。")
+    updated_profile: StudentProfile | None = Field(default=None, description="写回后的学生画像。")
 
 
 class ObserverEvent(ApiModel):
-    event: LearningEvent
-    signals: list[str]
+    """观察面板中的单轮事件包装，预留展示规则信号。"""
+
+    event: LearningEvent = Field(..., description="本轮结构化学习事件。")
+    signals: list[str] = Field(..., description="本轮命中的规则信号说明。")
 
 
 class ObserverSessionResponse(ApiModel):
-    session_id: str
-    student_id: str
-    memory_summary: str
-    events: list[LearningEvent]
-    review_tasks: list[ReviewTask]
+    """观察面板按会话查询到的决策链路数据。"""
+
+    session_id: str = Field(..., description="观察的学习会话 ID。")
+    student_id: str = Field(..., description="本次会话所属学生 ID。")
+    memory_summary: str = Field(..., description="会话相关的长期记忆摘要。")
+    events: list[LearningEvent] = Field(..., description="该会话下的学习事件列表。")
+    review_tasks: list[ReviewTask] = Field(..., description="该会话产生的复习任务列表。")
 
 
 class ReportResponse(ApiModel):
-    student_id: str
-    student_name: str
-    teacher_summary: str
-    parent_summary: str
-    weak_points: list[StudentKnowledge]
-    review_tasks: list[ReviewTask]
-    recent_events: list[LearningEvent]
-    profile: StudentProfile | None
+    """报告预览接口响应，聚合教师/家长视角摘要。"""
+
+    student_id: str = Field(..., description="报告所属学生 ID。")
+    student_name: str = Field(..., description="报告所属学生姓名。")
+    teacher_summary: str = Field(..., description="面向教师的学习摘要。")
+    parent_summary: str = Field(..., description="面向家长的学习摘要。")
+    weak_points: list[StudentKnowledge] = Field(..., description="当前薄弱知识点掌握记录。")
+    review_tasks: list[ReviewTask] = Field(..., description="该学生的复习任务列表。")
+    recent_events: list[LearningEvent] = Field(..., description="该学生近期学习事件列表。")
+    profile: StudentProfile | None = Field(default=None, description="学生长期画像。")
 
 
 class RuleSignal(ApiModel):
-    code: str
-    description: str
-    severity: str = "low"
+    """规则层提供给 LLM 的客观信号。"""
+
+    code: str = Field(..., description="规则信号短码。")
+    description: str = Field(..., description="规则信号的自然语言说明。")
+    severity: str = Field(default="low", description="信号强度，取值为 low、medium 或 high。")
 
 
 class EmotionRecognitionInput(ApiModel):
-    student_input: str
-    is_correct: bool | None = None
-    knowledge_point_ids: list[str] = Field(default_factory=list)
-    rule_signals: list[RuleSignal] = Field(default_factory=list)
-    history_summary: str | None = None
-    recent_turns: list[str] = Field(default_factory=list)
+    """情绪识别 LLM 调用输入。"""
+
+    student_input: str = Field(..., description="学生本轮输入原文。")
+    is_correct: bool | None = Field(default=None, description="本轮是否答对；非作答轮为空。")
+    knowledge_point_ids: list[str] = Field(default_factory=list, description="本轮命中的知识点 ID 列表。")
+    rule_signals: list[RuleSignal] = Field(default_factory=list, description="规则层提取的客观信号列表。")
+    history_summary: str | None = Field(default=None, description="忆感模块提供的历史记忆摘要。")
+    recent_turns: list[str] = Field(default_factory=list, description="最近 2-3 轮学生输入摘要。")
 
 
 class EmotionRecognitionResult(ApiModel):
-    state: LearningState
-    confidence: float
-    evidence: str
+    """情绪识别 LLM 调用输出。"""
+
+    state: LearningState = Field(..., description="LLM 识别出的学习状态。")
+    confidence: float = Field(..., description="LLM 对状态判断的置信度，范围 0-1。")
+    evidence: str = Field(..., description="LLM 给出的状态判断依据。")
 
 
 class GenerateResponseInput(ApiModel):
-    state: LearningState
-    strategy: list[TeachingStrategy]
-    care_triggered: bool
-    visual_aid_used: VisualAidType
-    question: dict[str, Any] | None = None
-    student_input: str
-    is_correct: bool | None = None
-    error_cause: str | None = None
-    error_detail: str | None = None
+    """教学回应生成 LLM 调用输入。"""
+
+    state: LearningState = Field(..., description="编排器确定的当前学习状态。")
+    strategy: list[TeachingStrategy] = Field(..., description="编排器选择的教学策略组合。")
+    care_triggered: bool = Field(..., description="是否需要先主动关怀再回到题目。")
+    visual_aid_used: VisualAidType = Field(..., description="本轮是否使用视觉辅助及其类型。")
+    question: dict[str, Any] | None = Field(default=None, description="当前题目上下文，通常包含 stem 和 solution。")
+    student_input: str = Field(..., description="学生本轮输入原文。")
+    is_correct: bool | None = Field(default=None, description="本轮是否答对；非作答轮为空。")
+    error_cause: str | None = Field(default=None, description="深图模块识别出的错因分类。")
+    error_detail: str | None = Field(default=None, description="错因自然语言说明。")
 
 
 class GenerateResponseResult(ApiModel):
-    tutor_response: str
+    """教学回应生成 LLM 调用输出。"""
+
+    tutor_response: str = Field(..., description="灵灵最终对学生说的话。")

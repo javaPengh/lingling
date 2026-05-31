@@ -1,3 +1,9 @@
+"""全局配置读取。
+
+配置来源优先使用环境变量，同时兼容根目录 `.env` 和 `server/.env`。
+本文件不保存密钥，只读取运行时注入的值。
+"""
+
 from dataclasses import dataclass
 from pathlib import Path
 import os
@@ -24,6 +30,8 @@ _load_env_file(SERVER_DIR / ".env")
 
 @dataclass(frozen=True)
 class Settings:
+    """后端运行配置快照。"""
+
     port: int = int(os.environ.get("PORT", "3001"))
     web_origin: str = os.environ.get("WEB_ORIGIN", "http://localhost:5173")
     llm_mode: str = os.environ.get("LLM_MODE", "mock")

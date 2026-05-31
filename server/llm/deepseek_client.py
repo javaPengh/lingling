@@ -1,3 +1,8 @@
+"""DeepSeek 真实模型客户端。
+
+通过 OpenAI-compatible Chat Completions API 调用 DeepSeek，密钥只从环境变量读取。
+"""
+
 import json
 
 import httpx
@@ -15,6 +20,8 @@ from server.models.schemas import (
 
 
 class DeepSeekClient(LlmClient):
+    """DeepSeek live 模式适配器。"""
+
     def __init__(self) -> None:
         if not settings.llm_api_key:
             raise LlmError("Missing DeepSeek API key")
@@ -27,6 +34,8 @@ class DeepSeekClient(LlmClient):
         }
 
     def recognize_emotion(self, payload: EmotionRecognitionInput) -> EmotionRecognitionResult:
+        """调用 DeepSeek 完成情绪识别，并校验 JSON 输出。"""
+
         content = self._chat(
             EMOTION_SYSTEM_PROMPT,
             json.dumps(payload.model_dump(by_alias=True), ensure_ascii=False),
@@ -38,6 +47,8 @@ class DeepSeekClient(LlmClient):
             raise LlmError(f"Invalid emotion JSON from DeepSeek: {content}") from exc
 
     def generate_response(self, payload: GenerateResponseInput) -> GenerateResponseResult:
+        """调用 DeepSeek 生成灵灵教学回应。"""
+
         content = self._chat(
             TEACHING_SYSTEM_PROMPT,
             json.dumps(payload.model_dump(by_alias=True), ensure_ascii=False),
