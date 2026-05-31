@@ -4,20 +4,20 @@
   "private": true,
   "type": "module",
   "workspaces": [
-    "server",
     "web"
   ],
   "scripts": {
     "dev": "concurrently \"npm:dev:server\" \"npm:dev:web\"",
-    "dev:server": "npm run dev --workspace server",
+    "dev:server": "python -m uvicorn server.main:app --host 127.0.0.1 --port 3001 --reload",
     "dev:web": "npm run dev --workspace web",
-    "build": "npm run build --workspace server && npm run build --workspace web",
-    "typecheck": "npm run typecheck --workspace server && npm run typecheck --workspace web",
-    "seed": "npm run seed --workspace server",
-    "verify:dao": "npm run verify:dao --workspace server",
-    "verify:seed": "npm run verify:seed --workspace server",
-    "verify:llm": "npm run verify:llm --workspace server",
-    "verify:llm:http": "npm run verify:llm:http --workspace server"
+    "build": "python -m compileall server && npm run build --workspace web",
+    "typecheck": "python -m compileall server && npm run typecheck --workspace web",
+    "seed": "python -m server.scripts.seed",
+    "verify": "python -m server.scripts.verify",
+    "verify:dao": "python -m server.scripts.verify",
+    "verify:seed": "python -m server.scripts.verify",
+    "verify:llm": "python -m server.scripts.verify",
+    "verify:llm:http": "python -m server.scripts.verify"
   },
   "devDependencies": {
     "concurrently": "^9.1.2",
