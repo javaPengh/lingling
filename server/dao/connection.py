@@ -28,4 +28,16 @@ def initialize_database(connection: sqlite3.Connection) -> None:
 
     schema = SCHEMA_PATH.read_text(encoding="utf-8")
     connection.executescript(schema)
+    _ensure_account_login_columns(connection)
     connection.commit()
+
+
+def _ensure_account_login_columns(connection: sqlite3.Connection) -> None:
+    """为旧本地库补齐账号登录字段，避免已有 account 表无法升级。"""
+
+    columns = {row["name"] for row in connection.execute("PRAGMA table_info(account)").fetchall()}
+    if "username" not in columns:
+        connection.execute("ALTER TABLE account ADD COLUMN username TEXT")
+        connection.execute("CREATE UNIQUE INDEX IF NOT EXISTS idx_account_username ON account(username)")
+    if "password_hash" not in columns:
+        connection.execute("ALTER TABLE account ADD COLUMN password_hash TEXT")

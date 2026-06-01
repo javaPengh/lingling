@@ -9,6 +9,7 @@ from typing import Any
 from pydantic import BaseModel, ConfigDict, Field
 
 from server.core.enums import (
+    AccountRole,
     Difficulty,
     ErrorCause,
     LearningState,
@@ -34,6 +35,26 @@ class Student(EntityModel):
     name: str = Field(..., description="学生昵称或姓名，例如小宇。")
     grade: str = Field(..., description="学生年级，例如高一。")
     created_at: str = Field(..., description="学生记录创建时间，ISO 8601 字符串。")
+
+
+class Account(EntityModel):
+    """MVP 预置登录账号，对应 `account` 表。"""
+
+    id: str = Field(..., description="账号唯一 ID，例如 acc_stu_001。")
+    username: str = Field(..., description="登录账号名，例如 xiaoyu。")
+    password_hash: str = Field(..., description="账号密码哈希；数据库不保存明文密码。")
+    role: AccountRole = Field(..., description="账号角色，决定登录后进入学生、家长或老师视角。")
+    display_name: str = Field(..., description="登录入口展示名称，例如小宇、小宇的家长或王老师。")
+    student_id: str | None = Field(default=None, description="学生账号对应的本人学生 ID；家长和老师账号为空。")
+    created_at: str = Field(..., description="账号记录创建时间，ISO 8601 字符串。")
+
+
+class AccountStudent(EntityModel):
+    """家长/老师账号可查看学生的关联记录，对应 `account_student` 表。"""
+
+    id: str = Field(..., description="账号-学生关联记录唯一 ID。")
+    account_id: str = Field(..., description="家长或老师账号 ID。")
+    student_id: str = Field(..., description="该账号有权查看的学生 ID。")
 
 
 class StudentProfile(EntityModel):

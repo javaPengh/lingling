@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>灵灵老师 · 登录</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;600;700;800&family=Noto+Serif+SC:wght@500;600&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --cream: #FBF5EC;
+    --card: #FFFFFF;
+    --ink: #3D342B;
+    --ink-soft: #7C7064;
+    --ink-faint: #A89C8E;
+    --brand: #C97B5A;
+    --brand-deep: #B5654A;
+    --brand-soft: #E8B68A;
+    --hairline: rgba(61,52,43,0.12);
+    --hairline-soft: rgba(61,52,43,0.07);
+    --field-bg: #FBF6EF;
+    --focus-ring: rgba(201,123,90,0.22);
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; height: 100%; }
+  body {
+    font-family: "Noto Sans SC", sans-serif;
+    color: var(--ink);
+    background: var(--cream);
+  }
+  .page { display: flex; min-height: 100vh; }
+
+  /* ---------- LEFT brand panel ---------- */
+  .brand-panel {
+    width: 44%;
+    flex: 0 0 44%;
+    position: relative;
+    overflow: hidden;
+    background: linear-gradient(158deg, #CD7E5C 0%, #B5654A 100%);
+    color: #FCF3EA;
+    padding: 56px 60px;
+    display: flex;
+    flex-direction: column;
+  }
+  .brand-panel .orb { position: absolute; border-radius: 50%; }
+  .brand-panel .orb-1 { width: 420px; height: 420px; right: -150px; top: -130px; background: rgba(255,255,255,0.10); }
+  .brand-panel .orb-2 { width: 280px; height: 280px; left: -110px; bottom: -90px; background: rgba(255,255,255,0.07); }
+  .brand-lockup { display: flex; align-items: center; gap: 13px; position: relative; z-index: 1; }
+  .brand-mark {
+    width: 38px; height: 38px; border-radius: 50%; position: relative; flex: 0 0 auto;
+    background: rgba(255,255,255,0.94);
+  }
+  .brand-mark::after {
+    content: ""; position: absolute; width: 13px; height: 13px; border-radius: 50%;
+    right: 6px; bottom: 7px; background: var(--brand);
+  }
+  .brand-name { font-weight: 800; font-size: 26px; letter-spacing: 0.01em; }
+
+  .brand-body { margin-top: auto; position: relative; z-index: 1; }
+  .brand-eyebrow { font-size: 13px; letter-spacing: 0.22em; opacity: 0.82; font-weight: 600; margin-bottom: 20px; }
+  .brand-headline {
+    margin: 0; font-family: "Noto Serif SC", serif; font-weight: 600;
+    font-size: 40px; line-height: 1.36;
+  }
+  .brand-sub { margin: 22px 0 0; font-size: 16px; line-height: 1.75; opacity: 0.92; max-width: 330px; font-weight: 400; }
+  .brand-foot { margin-top: 40px; position: relative; z-index: 1; font-size: 13px; opacity: 0.7; }
+
+  /* ---------- RIGHT form ---------- */
+  .form-panel {
+    flex: 1; display: flex; align-items: center; justify-content: center; padding: 48px;
+  }
+  .form-inner { width: 100%; max-width: 380px; }
+  .form-mark { display: none; align-items: center; gap: 11px; margin-bottom: 32px; }
+
+  .form-title { font-size: 27px; font-weight: 700; margin: 0; letter-spacing: 0.01em; }
+  .form-tagline { font-size: 15px; color: var(--ink-soft); margin: 10px 0 36px; }
+
+  .field { margin-bottom: 20px; }
+  .field label {
+    display: block; font-size: 13.5px; font-weight: 600; color: var(--ink); margin-bottom: 9px;
+  }
+  .input-wrap { position: relative; }
+  .input-wrap .icon {
+    position: absolute; left: 16px; top: 50%; transform: translateY(-50%);
+    color: var(--ink-faint); display: flex; pointer-events: none;
+  }
+  .field input {
+    width: 100%; height: 52px; border-radius: 14px; border: 1px solid var(--hairline);
+    background: var(--field-bg); padding: 0 16px 0 46px; font-size: 15px; color: var(--ink);
+    font-family: inherit; outline: none; transition: border-color .18s, box-shadow .18s, background .18s;
+  }
+  .field input::placeholder { color: var(--ink-faint); }
+  .field input:focus {
+    border-color: var(--brand); background: #fff; box-shadow: 0 0 0 4px var(--focus-ring);
+  }
+  .pw-toggle {
+    position: absolute; right: 8px; top: 50%; transform: translateY(-50%);
+    border: none; background: transparent; cursor: pointer; color: var(--ink-faint);
+    padding: 8px; border-radius: 8px; display: flex; transition: color .18s;
+  }
+  .pw-toggle:hover { color: var(--ink-soft); }
+
+  .row-between { display: flex; align-items: center; justify-content: space-between; margin: 4px 0 28px; }
+  .remember { display: flex; align-items: center; gap: 9px; cursor: pointer; font-size: 13.5px; color: var(--ink-soft); user-select: none; }
+  .remember input { position: absolute; opacity: 0; width: 0; height: 0; }
+  .checkbox {
+    width: 19px; height: 19px; border-radius: 6px; border: 1.5px solid var(--hairline);
+    background: var(--field-bg); display: flex; align-items: center; justify-content: center;
+    transition: all .18s; flex: 0 0 auto;
+  }
+  .checkbox svg { opacity: 0; transform: scale(.6); transition: all .18s; }
+  .remember input:checked + .checkbox { background: var(--brand); border-color: var(--brand); }
+  .remember input:checked + .checkbox svg { opacity: 1; transform: scale(1); }
+  .forgot { font-size: 13.5px; color: var(--brand); font-weight: 600; text-decoration: none; }
+  .forgot:hover { color: var(--brand-deep); }
+
+  .btn-login {
+    width: 100%; height: 53px; border: none; border-radius: 14px; cursor: pointer;
+    background: var(--brand); color: #fff; font-size: 16px; font-weight: 700; font-family: inherit;
+    letter-spacing: 0.02em; box-shadow: 0 12px 26px rgba(201,123,90,0.32);
+    transition: transform .16s, box-shadow .16s, background .16s;
+    display: flex; align-items: center; justify-content: center; gap: 9px;
+  }
+  .btn-login:hover { background: var(--brand-deep); transform: translateY(-1px); box-shadow: 0 16px 32px rgba(201,123,90,0.38); }
+  .btn-login:active { transform: translateY(0); box-shadow: 0 8px 18px rgba(201,123,90,0.3); }
+  .btn-login .arrow { transition: transform .18s; }
+  .btn-login:hover .arrow { transform: translateX(4px); }
+
+  .demo-hint {
+    margin-top: 26px; padding: 13px 16px; border-radius: 12px;
+    background: var(--field-bg); border: 1px solid var(--hairline-soft);
+    font-size: 12.5px; color: var(--ink-soft); line-height: 1.6;
+    display: flex; gap: 9px; align-items: flex-start;
+  }
+  .demo-hint b { color: var(--ink); font-weight: 600; }
+  .signup { margin-top: 28px; text-align: center; font-size: 13.5px; color: var(--ink-faint); }
+  .signup a { color: var(--brand); font-weight: 600; text-decoration: none; }
+  .signup a:hover { color: var(--brand-deep); }
+
+  /* ---------- responsive: stack on narrow ---------- */
+  @media (max-width: 860px) {
+    .brand-panel { display: none; }
+    .form-mark { display: flex; }
+    .form-panel { padding: 32px 24px; }
+    .form-mark .brand-mark {
+      width: 34px; height: 34px;
+      background: radial-gradient(120% 120% at 35% 30%, var(--brand-soft) 0%, var(--brand) 70%);
+    }
+    .form-mark .brand-mark::after { background: var(--cream); width: 11px; height: 11px; }
+    .form-mark .brand-name { color: var(--ink); font-size: 22px; }
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <!-- LEFT brand panel -->
+  <aside class="brand-panel">
+    <div class="orb orb-1"></div>
+    <div class="orb orb-2"></div>
+    <div class="brand-lockup">
+      <span class="brand-mark"></span>
+      <span class="brand-name">灵灵老师</span>
+    </div>
+    <div class="brand-body">
+      <div class="brand-eyebrow">WELCOME BACK</div>
+      <h1 class="brand-headline">欢迎回来，<br />继续今天的学习</h1>
+      <p class="brand-sub">登录灵灵老师，按你的节奏，把每一步走稳。</p>
+    </div>
+    <div class="brand-foot">© 2026 灵灵老师 · 让学习更懂你</div>
+  </aside>
+
+  <!-- RIGHT login form -->
+  <main class="form-panel">
+    <div class="form-inner">
+      <div class="form-mark">
+        <span class="brand-mark"></span>
+        <span class="brand-name">灵灵老师</span>
+      </div>
+
+      <h2 class="form-title">登录</h2>
+      <p class="form-tagline">输入你的账号和密码以继续</p>
+
+      <form id="loginForm" novalidate>
+        <div class="field">
+          <label for="account">账号</label>
+          <div class="input-wrap">
+            <span class="icon">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+            </span>
+            <input id="account" name="account" type="text" placeholder="用户名 / 手机号" autocomplete="username" />
+          </div>
+        </div>
+
+        <div class="field">
+          <label for="password">密码</label>
+          <div class="input-wrap">
+            <span class="icon">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+            </span>
+            <input id="password" name="password" type="password" placeholder="请输入密码" autocomplete="current-password" />
+            <button type="button" class="pw-toggle" id="pwToggle" aria-label="显示密码">
+              <svg id="eyeIcon" width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7Z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+            </button>
+          </div>
+        </div>
+
+        <div class="row-between">
+          <label class="remember">
+            <input type="checkbox" id="remember" checked />
+            <span class="checkbox">
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+            </span>
+            记住我
+          </label>
+          <a class="forgot" href="#">忘记密码?</a>
+        </div>
+
+        <button type="submit" class="btn-login">
+          登录
+          <span class="arrow">→</span>
+        </button>
+      </form>
+
+      <div class="demo-hint">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="flex:0 0 auto;margin-top:1px;"><circle cx="12" cy="12" r="10"></circle><path d="M12 16v-4"></path><path d="M12 8h.01"></path></svg>
+        <span>演示环境 · 任意账号密码即可登录，<b>正式版将接入真实账号体系</b>。</span>
+      </div>
+
+      <div class="signup">还没有账号? <a href="#">联系老师开通</a></div>
+    </div>
+  </main>
+</div>
+
+<script>
+  // password visibility toggle
+  const pw = document.getElementById('password');
+  const toggle = document.getElementById('pwToggle');
+  const eye = document.getElementById('eyeIcon');
+  const eyeOpen = '<path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7Z"></path><circle cx="12" cy="12" r="3"></circle>';
+  const eyeOff = '<path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c6.5 0 10 7 10 7a13.2 13.2 0 0 1-2.16 2.83"></path><path d="M6.6 6.6A13.5 13.5 0 0 0 2 11s3.5 7 10 7a9 9 0 0 0 4.4-1.1"></path><line x1="2" y1="2" x2="22" y2="22"></line>';
+  toggle.addEventListener('click', () => {
+    const show = pw.type === 'password';
+    pw.type = show ? 'text' : 'password';
+    eye.innerHTML = show ? eyeOff : eyeOpen;
+    toggle.setAttribute('aria-label', show ? '隐藏密码' : '显示密码');
+  });
+
+  // demo submit feedback
+  document.getElementById('loginForm').addEventListener('submit', (e) => {
+    e.preventDefault();
+    const btn = e.target.querySelector('.btn-login');
+    btn.innerHTML = '正在登录…';
+    btn.style.opacity = '0.85';
+    setTimeout(() => { btn.innerHTML = '登录 <span class="arrow">→</span>'; btn.style.opacity = '1'; }, 1100);
+  });
+</script>
+</body>
+</html>

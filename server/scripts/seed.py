@@ -8,17 +8,92 @@ from __future__ import annotations
 
 from sqlite3 import Connection
 
+from server.core.security import hash_password
 from server.dao.connection import create_connection
+from server.dao.account_dao import upsert_account, upsert_account_student
 from server.dao.knowledge_dao import upsert_knowledge_point
 from server.dao.question_dao import upsert_question, upsert_question_knowledge
 from server.dao.student_dao import upsert_student, upsert_student_knowledge, upsert_student_profile
-from server.models.entities import KnowledgePoint, Question, QuestionKnowledge, Student, StudentKnowledge, StudentProfile
+from server.models.entities import (
+    Account,
+    AccountStudent,
+    KnowledgePoint,
+    Question,
+    QuestionKnowledge,
+    Student,
+    StudentKnowledge,
+    StudentProfile,
+)
 
 
 SEED_STUDENTS = [
     {"id": "stu_001", "name": "小宇", "grade": "高一", "created_at": "2026-05-01T08:00:00Z"},
     {"id": "stu_002", "name": "小琳", "grade": "高一", "created_at": "2026-05-03T08:00:00Z"},
     {"id": "stu_003", "name": "小哲", "grade": "高一", "created_at": "2026-05-02T08:00:00Z"},
+]
+
+DEMO_LOGIN_PASSWORD = "123456"
+
+
+def demo_password_hash(account_id: str) -> str:
+    """生成演示账号的稳定密码哈希，便于种子数据重复执行。"""
+
+    return hash_password(DEMO_LOGIN_PASSWORD, salt=f"lingling-demo:{account_id}")
+
+
+SEED_ACCOUNTS = [
+    {
+        "id": "acc_stu_001",
+        "username": "xiaoyu",
+        "password_hash": demo_password_hash("acc_stu_001"),
+        "role": "student",
+        "display_name": "小宇",
+        "student_id": "stu_001",
+        "created_at": "2026-05-01T08:10:00Z",
+    },
+    {
+        "id": "acc_stu_002",
+        "username": "xiaozhe",
+        "password_hash": demo_password_hash("acc_stu_002"),
+        "role": "student",
+        "display_name": "小哲",
+        "student_id": "stu_003",
+        "created_at": "2026-05-01T08:20:00Z",
+    },
+    {
+        "id": "acc_stu_003",
+        "username": "xiaolin",
+        "password_hash": demo_password_hash("acc_stu_003"),
+        "role": "student",
+        "display_name": "小琳",
+        "student_id": "stu_002",
+        "created_at": "2026-05-01T08:30:00Z",
+    },
+    {
+        "id": "acc_parent_001",
+        "username": "parent_xiaoyu",
+        "password_hash": demo_password_hash("acc_parent_001"),
+        "role": "parent",
+        "display_name": "小宇的家长",
+        "student_id": None,
+        "created_at": "2026-05-01T08:40:00Z",
+    },
+    {
+        "id": "acc_teacher_001",
+        "username": "teacher_wang",
+        "password_hash": demo_password_hash("acc_teacher_001"),
+        "role": "teacher",
+        "display_name": "王老师",
+        "student_id": None,
+        "created_at": "2026-05-01T08:50:00Z",
+    },
+]
+
+SEED_ACCOUNT_STUDENTS = [
+    {"id": "acct_stu_parent_001_001", "account_id": "acc_parent_001", "student_id": "stu_001"},
+    {"id": "acct_stu_teacher_001_001", "account_id": "acc_teacher_001", "student_id": "stu_001"},
+    {"id": "acct_stu_teacher_001_002", "account_id": "acc_teacher_001", "student_id": "stu_002"},
+    {"id": "acct_stu_teacher_001_003", "account_id": "acc_teacher_001", "student_id": "stu_003"},
 ]
 
 SEED_STUDENT_PROFILES = [
@@ -226,6 +301,10 @@ def seed_database(connection: Connection | None = None) -> dict[str, int]:
     db = connection or create_connection()
     for student in SEED_STUDENTS:
         upsert_student(db, Student.model_validate(student))
+    for account in SEED_ACCOUNTS:
+        upsert_account(db, Account.model_validate(account))
+    for relation in SEED_ACCOUNT_STUDENTS:
+        upsert_account_student(db, AccountStudent.model_validate(relation))
     for profile in SEED_STUDENT_PROFILES:
         upsert_student_profile(db, StudentProfile.model_validate(profile))
     for point in SEED_KNOWLEDGE_POINTS:
@@ -239,6 +318,8 @@ def seed_database(connection: Connection | None = None) -> dict[str, int]:
     db.commit()
     summary = {
         "students": len(SEED_STUDENTS),
+        "accounts": len(SEED_ACCOUNTS),
+        "account_students": len(SEED_ACCOUNT_STUDENTS),
         "profiles": len(SEED_STUDENT_PROFILES),
         "knowledge_points": len(SEED_KNOWLEDGE_POINTS),
         "student_knowledge": len(SEED_STUDENT_KNOWLEDGE),

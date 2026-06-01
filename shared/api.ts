@@ -25,6 +25,12 @@ export type ErrorCause =
 /** 本轮实际使用的视觉辅助类型。 */
 export type VisualAidType = "none" | "function_graph" | "geometry" | "annotation" | "diagram";
 
+/** 登录账号角色，决定登录后进入哪个产品界面。 */
+export type AccountRole = "student" | "parent" | "teacher";
+
+/** 登录成功后的前端目标页面。 */
+export type LandingPage = "student_learning" | "parent_report" | "teacher_report";
+
 // 健康检查 ---------------------------------------------------------------
 
 /** 后端健康检查响应。 */
@@ -60,6 +66,47 @@ export interface StudentSummary {
 export interface StudentsListResponse {
   /** 可选择的预置学生列表。 */
   students: StudentSummary[];
+}
+
+// 登录与账号 -------------------------------------------------------------
+
+/** 登录入口展示和登录结果使用的账号摘要，不包含密码信息。 */
+export interface AccountSummary {
+  /** 账号 ID，对应数据库 account.id。 */
+  id: string;
+
+  /** 登录账号名，例如 xiaoyu。 */
+  username: string;
+
+  /** 账号角色。 */
+  role: AccountRole;
+
+  /** 页面展示名称，例如“小宇”“王老师”。 */
+  displayName: string;
+
+  /** 学生账号对应的本人学生 ID；家长和老师账号为空。 */
+  studentId?: string | null;
+}
+
+/** POST /api/auth/login 的请求体。 */
+export interface LoginRequest {
+  /** 用户输入的登录账号。 */
+  account: string;
+
+  /** 用户输入的登录密码。 */
+  password: string;
+}
+
+/** POST /api/auth/login 登录成功后的响应。 */
+export interface LoginResponse {
+  /** 登录成功的账号摘要。 */
+  account: AccountSummary;
+
+  /** 该账号可进入或可查看的学生范围。 */
+  students: StudentSummary[];
+
+  /** 前端登录成功后的目标页面。 */
+  landingPage: LandingPage;
 }
 
 // 学习会话与回合 ---------------------------------------------------------

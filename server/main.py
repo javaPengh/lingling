@@ -6,9 +6,10 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from server.api.routes import health, learning, observer, report, students
+from server.api.routes import accounts, auth, health, learning, observer, report, students
 from server.core.config import settings
 from server.dao.connection import create_connection
+from server.dao.account_dao import count_account_students, count_accounts, count_accounts_missing_credentials
 from server.dao.student_dao import count_students
 from server.scripts.seed import seed_database
 
@@ -25,6 +26,8 @@ def create_app() -> FastAPI:
         allow_headers=["*"],
     )
     app.include_router(health.router, prefix="/api")
+    app.include_router(auth.router, prefix="/api")
+    app.include_router(accounts.router, prefix="/api")
     app.include_router(students.router, prefix="/api")
     app.include_router(learning.router, prefix="/api")
     app.include_router(observer.router, prefix="/api")
@@ -35,7 +38,12 @@ def create_app() -> FastAPI:
         """启动时建表；若库为空则写入演示种子数据。"""
 
         with create_connection() as connection:
-            if count_students(connection) == 0:
+            if (
+                count_students(connection) == 0
+                or count_accounts(connection) == 0
+                or count_account_students(connection) == 0
+                or count_accounts_missing_credentials(connection) > 0
+            ):
                 seed_database(connection)
 
     return app

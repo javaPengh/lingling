@@ -1,11 +1,35 @@
 PRAGMA foreign_keys = ON;
 
--- 学生基础信息表：只放最小身份信息。V0.1 不做真实登录，选择学生就等于进入对应画像。
+-- 学生基础信息表：只放最小身份信息；登录凭据属于 account 表。
 CREATE TABLE IF NOT EXISTS student (
   id          TEXT PRIMARY KEY, -- 学生 ID，种子数据建议用 stu_001 这类可读短码。
   name        TEXT NOT NULL,    -- 学生昵称/姓名，例如“小宇”。
   grade       TEXT NOT NULL,    -- 年级，例如“高一”。
   created_at  TEXT NOT NULL     -- 创建时间，ISO 8601 字符串。
+);
+
+-- 账号表：表达登录入口中的“谁以什么角色进入系统”。
+-- V0.1 使用预置账号密码登录，不做注册、找回、token 持久会话等完整账号体系。
+CREATE TABLE IF NOT EXISTS account (
+  id            TEXT PRIMARY KEY, -- 账号 ID，例如 acc_stu_001。
+  username      TEXT NOT NULL UNIQUE, -- 登录账号名，例如 xiaoyu。
+  password_hash TEXT NOT NULL,    -- 密码哈希；不存明文密码。
+  role          TEXT NOT NULL CHECK (role IN ('student','parent','teacher')), -- 角色：student / parent / teacher。
+  display_name  TEXT NOT NULL,    -- 登录入口展示名称，例如“小宇”“小宇的家长”“王老师”。
+  student_id    TEXT,             -- 仅学生账号有值，指向该账号对应的学生本人。
+  created_at    TEXT NOT NULL,    -- 账号创建时间，ISO 8601 字符串。
+  FOREIGN KEY (student_id) REFERENCES student(id)
+);
+
+-- 账号-学生关联表：表达家长/老师账号能查看哪些学生。
+-- 学生账号本人不依赖此表，而是通过 account.student_id 指向本人。
+CREATE TABLE IF NOT EXISTS account_student (
+  id          TEXT PRIMARY KEY, -- 关联记录 ID。
+  account_id  TEXT NOT NULL,    -- 家长或老师账号 ID。
+  student_id  TEXT NOT NULL,    -- 该账号有权查看的学生 ID。
+  UNIQUE (account_id, student_id),
+  FOREIGN KEY (account_id) REFERENCES account(id),
+  FOREIGN KEY (student_id) REFERENCES student(id)
 );
 
 -- 学生画像表：长期记忆的文字/标签部分，与 student 一对一。

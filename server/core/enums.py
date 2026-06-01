@@ -6,6 +6,17 @@
 from enum import StrEnum
 
 
+class AccountRole(StrEnum):
+    """登录入口预置账号的角色枚举。"""
+
+    # 学生本人账号，进入学生学习界面。
+    STUDENT = "student"
+    # 家长账号，查看所关联孩子的报告。
+    PARENT = "parent"
+    # 老师账号，查看所带学生的学习情况和报告。
+    TEACHER = "teacher"
+
+
 class LearningState(StrEnum):
     """学生当前学习/情绪状态，写入 `learning_event.state`。"""
 

@@ -8,7 +8,7 @@ from typing import Any
 
 from pydantic import BaseModel, ConfigDict, Field
 
-from server.core.enums import LearningState, TeachingStrategy, VisualAidType
+from server.core.enums import AccountRole, LearningState, TeachingStrategy, VisualAidType
 from server.models.entities import LearningEvent, ReviewTask, StudentKnowledge, StudentProfile
 
 
@@ -50,6 +50,44 @@ class StudentsListResponse(ApiModel):
     """学生列表接口响应。"""
 
     students: list[StudentSummary] = Field(..., description="可选择的预置学生列表。")
+
+
+class AccountSummary(ApiModel):
+    """登录入口使用的预置账号摘要。"""
+
+    id: str = Field(..., description="账号唯一 ID。")
+    username: str = Field(..., description="登录账号名。")
+    role: AccountRole = Field(..., description="账号角色：student、parent 或 teacher。")
+    display_name: str = Field(..., description="登录入口展示名称。")
+    student_id: str | None = Field(default=None, description="学生账号对应的本人学生 ID；家长和老师账号为空。")
+
+
+class AccountsListResponse(ApiModel):
+    """账号列表接口响应。"""
+
+    accounts: list[AccountSummary] = Field(..., description="登录入口可选择的预置账号列表。")
+
+
+class AccountStudentsResponse(ApiModel):
+    """某个账号可查看或可进入的学生范围。"""
+
+    account: AccountSummary = Field(..., description="当前查询的账号摘要。")
+    students: list[StudentSummary] = Field(..., description="该账号可查看或可进入的学生列表。")
+
+
+class LoginRequest(ApiModel):
+    """登录页提交的账号密码请求。"""
+
+    account: str = Field(..., description="用户输入的登录账号；后端兼容 username、账号 ID 或展示名。")
+    password: str = Field(..., description="用户输入的明文密码，只用于本次校验，不入库。")
+
+
+class LoginResponse(ApiModel):
+    """账号密码校验成功后的角色分流结果。"""
+
+    account: AccountSummary = Field(..., description="登录成功的账号摘要。")
+    students: list[StudentSummary] = Field(..., description="该账号可进入或可查看的学生范围。")
+    landing_page: str = Field(..., description="前端登录成功后的目标页面：student_learning、parent_report 或 teacher_report。")
 
 
 class StartSessionRequest(ApiModel):

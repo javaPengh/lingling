@@ -44,16 +44,22 @@ def list_students(connection: sqlite3.Connection) -> list[StudentSummary]:
         ORDER BY s.created_at ASC
         """
     ).fetchall()
-    summaries: list[StudentSummary] = []
-    for row in rows:
-        learning_summary = row["learning_summary"] or ""
-        profile_label = None
-        if learning_summary:
-            profile_label = learning_summary.replace("，", "。").replace(",", "。").split("。")[0]
-        summaries.append(
-            StudentSummary(id=row["id"], name=row["name"], grade=row["grade"], profile_label=profile_label)
-        )
-    return summaries
+    return [_student_summary_from_row(row) for row in rows]
+
+
+def get_student_summary(connection: sqlite3.Connection, student_id: str) -> StudentSummary | None:
+    """按学生 ID 查询学生选择页使用的轻量学生信息。"""
+
+    row = connection.execute(
+        """
+        SELECT s.id, s.name, s.grade, p.learning_summary
+        FROM student s
+        LEFT JOIN student_profile p ON p.student_id = s.id
+        WHERE s.id = ?
+        """,
+        (student_id,),
+    ).fetchone()
+    return _student_summary_from_row(row) if row else None
 
 
 def count_students(connection: sqlite3.Connection) -> int:
@@ -61,6 +67,16 @@ def count_students(connection: sqlite3.Connection) -> int:
 
     row = connection.execute("SELECT COUNT(*) AS count FROM student").fetchone()
     return int(row["count"])
+
+
+def _student_summary_from_row(row: sqlite3.Row) -> StudentSummary:
+    """把学生与画像查询结果映射为学生摘要 DTO。"""
+
+    learning_summary = row["learning_summary"] or ""
+    profile_label = None
+    if learning_summary:
+        profile_label = learning_summary.replace("，", "。").replace(",", "。").split("。")[0]
+    return StudentSummary(id=row["id"], name=row["name"], grade=row["grade"], profile_label=profile_label)
 
 
 def upsert_student_profile(connection: sqlite3.Connection, profile: StudentProfile) -> None:
